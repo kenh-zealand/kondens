@@ -2,6 +2,11 @@
 
 Alle væsentlige ændringer i Discussion Collector.
 
+## [1.6] – 2026-11-15
+
+### Tilføjet
+- Fire færdige promptforslag i underviserboksen: Temaer, PESTLE, Enighed og uenighed samt Fra idé til handling. Et klik fylder prompten ud, som så kan rettes og gemmes.
+
 ## [1.5] – 2026-11-15
 
 ### Tilføjet

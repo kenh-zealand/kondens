@@ -164,6 +164,13 @@ a.knap{text-decoration:none;display:inline-block}
 	<details class="kort indstillinger">
 		<summary>Underviser: prompt og nulstilling</summary>
 		<div class="ind-indhold">
+			<p class="hjaelp" style="margin-top:0">Vælg et udgangspunkt – du kan rette teksten bagefter:</p>
+			<div class="fanebar" id="prompt-forslag" style="flex-wrap:wrap">
+				<button type="button" class="toggle" data-prompt="Organisér indlæggene og udled de gennemgående temaer. Indlæg, der siger det samme med forskellig ordlyd, hører til samme tema. Giv hvert tema en kort overskrift og 2-4 punkter.">Temaer</button>
+				<button type="button" class="toggle" data-prompt="Tematiser ud fra PESTLE modellen og lav en kort opsamling. Indlæg, der siger det samme med forskellig ordlyd, hører til samme tema.">PESTLE</button>
+				<button type="button" class="toggle" data-prompt="Find, hvad deltagerne er enige om, hvor der er uenighed eller forskellige perspektiver, og hvilke spørgsmål der står åbne. Indlæg, der siger det samme med forskellig ordlyd, tæller som ét synspunkt. Brug overskrifterne Enighed, Uenighed og Åbne spørgsmål med 2-4 punkter under hver.">Enighed og uenighed</button>
+				<button type="button" class="toggle" data-prompt="Saml indlæggene i konkrete forslag eller indsatser. Indlæg, der siger det samme med forskellig ordlyd, hører til samme forslag. Giv hvert forslag en kort overskrift og punkter med, hvad det går ud på, og hvad et første skridt kunne være. Begynd med det forslag, flest indlæg peger på.">Fra idé til handling</button>
+			</div>
 			<label for="prompt">Prompt – sådan skal indlæggene behandles i opsamlingen</label>
 			<textarea id="prompt" maxlength="3000" placeholder="Fx: Organisér indlæggene og udled temaer …"></textarea>
 			<div class="raekke">
@@ -429,6 +436,12 @@ a.knap{text-decoration:none;display:inline-block}
 	let promptRedigeret = false;
 	// Underviserknapperne findes kun for admin – ?. springer dem over for deltagere.
 	$('prompt')?.addEventListener('input', () => { promptRedigeret = true; $('prompt-status').textContent = 'Ikke gemt endnu.'; });
+	document.querySelectorAll('#prompt-forslag [data-prompt]').forEach((k) => k.addEventListener('click', () => {
+		$('prompt').value = k.dataset.prompt;
+		promptRedigeret = true;
+		$('prompt-status').textContent = 'Ikke gemt endnu – tryk "Gem prompt".';
+		$('prompt').focus();
+	}));
 	const post = async (sti, krop) => {
 		const r = await fetch(API + sti, { method: 'POST', credentials: 'same-origin', headers: { ...HOVED, 'Content-Type': 'application/json' }, body: JSON.stringify(krop || {}) });
 		const svar = await r.json().catch(() => ({}));
