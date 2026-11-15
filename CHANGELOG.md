@@ -2,6 +2,11 @@
 
 Alle væsentlige ændringer i Discussion Collector.
 
+## [1.5] – 2026-11-15
+
+### Tilføjet
+- Linket "Underviser? Log ind" ved indgangen og nederst på siden. Det fører til WordPress-login og tilbage til siden, så underviseren får adgang til prompt, nulstilling og opdatering.
+
 ## [1.4] – 2026-11-11
 
 ### Tilføjet

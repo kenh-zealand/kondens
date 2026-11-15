@@ -87,6 +87,7 @@ a.knap{text-decoration:none;display:inline-block}
 .login{max-width:380px;margin:12vh auto;padding:0 1.25rem}
 .kun-print{display:none}
 .version{text-align:center;font-size:.75rem;color:var(--graa);margin:1.5rem 0 0}
+.version a{color:var(--graa)}
 @media print{
 	body{background:#fff}
 	.wrap{padding:0;max-width:none}
@@ -126,6 +127,7 @@ a.knap{text-decoration:none;display:inline-block}
 			<div class="raekke"><button class="knap" type="submit">Gå ind</button></div>
 		</form>
 	</div>
+	<p class="version"><a href="<?php echo esc_url( wp_login_url( get_permalink( $dcol_side ) ) ); ?>">Underviser? Log ind</a></p>
 </main>
 <script>
 (() => {
@@ -227,7 +229,7 @@ a.knap{text-decoration:none;display:inline-block}
 		<ul class="liste" id="liste"></ul>
 		<div class="sky" id="sky" hidden aria-label="Ordsky over alle indlæg"></div>
 	</section>
-	<p class="version">Discussion Collector v<?php echo esc_html( defined( 'DCOL_VERSION' ) ? DCOL_VERSION : '' ); ?></p>
+	<p class="version">Discussion Collector v<?php echo esc_html( defined( 'DCOL_VERSION' ) ? DCOL_VERSION : '' ); ?><?php if ( ! $dcol_admin ) : ?> · <a href="<?php echo esc_url( wp_login_url( get_permalink( $dcol_side ) ) ); ?>">Underviser? Log ind</a><?php endif; ?></p>
 </main>
 
 <script>
