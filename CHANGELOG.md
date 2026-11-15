@@ -2,6 +2,13 @@
 
 Alle væsentlige ændringer i Discussion Collector.
 
+## [1.7] – 2026-11-15
+
+### Tilføjet
+- Deltagere kan rette og slette deres egne indlæg. Ved oprettelsen får browseren en hemmelig nøgle til indlægget, så kun den kan ændre det – også når deltagerne er anonyme.
+- Administrator kan rette og slette alle indlæg.
+- Rettede indlæg markeres med "rettet". Slettede indlæg lægges i papirkurven og kan gendannes.
+
 ## [1.6] – 2026-11-15
 
 ### Tilføjet

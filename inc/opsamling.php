@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 // Deltagerkoden sættes under Indstillinger → Opsamling,
 // eller i wp-config.php med: define( 'DCOL_KODE', 'din-kode' );
 const DCOL_COOKIE  = 'dcol_adgang';
-const DCOL_VERSION = '1.6';
+const DCOL_VERSION = '1.7';
 
 /* Deltagerkoden: DCOL_KODE (fx i wp-config.php) går forud; ellers Indstillinger → Opsamling. */
 function dcol_kode() {
@@ -185,6 +185,16 @@ add_action( 'rest_api_init', function () {
 	register_rest_route( 'discussion-collector/v1', '/indlaeg', array(
 		'methods'             => 'POST',
 		'callback'            => 'dcol_nyt',
+		'permission_callback' => 'dcol_er_logget_ind',
+	) );
+	register_rest_route( 'discussion-collector/v1', '/ret', array(
+		'methods'             => 'POST',
+		'callback'            => 'dcol_ret',
+		'permission_callback' => 'dcol_er_logget_ind',
+	) );
+	register_rest_route( 'discussion-collector/v1', '/slet', array(
+		'methods'             => 'POST',
+		'callback'            => 'dcol_slet',
 		'permission_callback' => 'dcol_er_logget_ind',
 	) );
 	register_rest_route( 'discussion-collector/v1', '/prompt', array(
@@ -405,6 +415,7 @@ function dcol_feed() {
 			'navn'  => html_entity_decode( $p->post_title, ENT_QUOTES, 'UTF-8' ),
 			'tekst' => html_entity_decode( $p->post_content, ENT_QUOTES, 'UTF-8' ),
 			'tid'   => gmdate( 'c', $t ),
+			'rettet' => (bool) get_post_meta( $p->ID, 'dcol_rettet', true ),
 		);
 	}
 	$svar = new WP_REST_Response( array(
@@ -450,5 +461,45 @@ function dcol_nyt( WP_REST_Request $r ) {
 	if ( is_wp_error( $id ) ) {
 		return $id;
 	}
-	return array( 'ok' => true, 'id' => $id );
+	// Hemmelig nøgle til forfatterens browser, så kun den kan rette og slette indlægget.
+	$token = wp_generate_password( 32, false );
+	update_post_meta( $id, 'dcol_ejer', hash( 'sha256', $token ) );
+	return array( 'ok' => true, 'id' => $id, 'token' => $token );
+}
+
+/* Ret/slet eget indlæg: kræver nøglen fra oprettelsen – eller at man er administrator. */
+function dcol_maa_aendre( WP_REST_Request $r ) {
+	$p = get_post( (int) $r->get_param( 'id' ) );
+	if ( ! $p || 'dcol_indlaeg' !== $p->post_type || 'private' !== $p->post_status ) {
+		return null;
+	}
+	if ( dcol_er_admin() ) {
+		return $p;
+	}
+	$gemt  = (string) get_post_meta( $p->ID, 'dcol_ejer', true );
+	$token = (string) $r->get_param( 'token' );
+	return ( '' !== $gemt && '' !== $token && hash_equals( $gemt, hash( 'sha256', $token ) ) ) ? $p : null;
+}
+
+function dcol_ret( WP_REST_Request $r ) {
+	$p = dcol_maa_aendre( $r );
+	if ( ! $p ) {
+		return new WP_Error( 'ikke_dit', 'Du kan kun rette dine egne indlæg.', array( 'status' => 403 ) );
+	}
+	$tekst = trim( wp_strip_all_tags( (string) $r->get_param( 'tekst' ) ) );
+	if ( '' === $tekst ) {
+		return new WP_Error( 'tom', 'Indlægget kan ikke være tomt – slet det i stedet.', array( 'status' => 400 ) );
+	}
+	wp_update_post( array( 'ID' => $p->ID, 'post_content' => wp_slash( mb_substr( $tekst, 0, 2000 ) ) ) );
+	update_post_meta( $p->ID, 'dcol_rettet', time() );
+	return array( 'ok' => true );
+}
+
+function dcol_slet( WP_REST_Request $r ) {
+	$p = dcol_maa_aendre( $r );
+	if ( ! $p ) {
+		return new WP_Error( 'ikke_dit', 'Du kan kun slette dine egne indlæg.', array( 'status' => 403 ) );
+	}
+	wp_trash_post( $p->ID ); // Papirkurven – kan gendannes i WordPress.
+	return array( 'ok' => true );
 }

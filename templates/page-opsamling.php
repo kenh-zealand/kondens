@@ -66,6 +66,9 @@ textarea:focus,input:focus,button:focus-visible{outline:3px solid var(--lilla-ly
 .tekst.klip{display:-webkit-box;-webkit-line-clamp:3;line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .vis-mere{display:block;margin:0 auto;background:none;border:0;color:var(--lilla);font:inherit;font-size:.85rem;font-weight:700;padding:.25rem 0 0;cursor:pointer}
 .vis-mere:hover{text-decoration:underline}
+.lille{background:none;border:0;padding:0;font:inherit;font-size:.8rem;color:var(--lilla);text-decoration:underline;cursor:pointer}
+.lille:disabled{opacity:.6;cursor:default}
+.ret-boks textarea{min-height:80px;margin:.3rem 0}
 .ny-markering{animation:blink 2.5s ease-out}
 @keyframes blink{from{background:var(--lilla-bg)}to{background:transparent}}
 .sky{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.35rem 1rem;padding:1rem .5rem;min-height:160px}
@@ -94,7 +97,7 @@ a.knap{text-decoration:none;display:inline-block}
 	body:not(.print-indlaeg) .wrap>*:not(#opsamling-sektion){display:none!important}
 	body.print-indlaeg .wrap>*:not(#indlaeg-sektion){display:none!important}
 	body.print-indlaeg #indlaeg-sektion{border:0;padding:0;margin:0}
-	body.print-indlaeg .fanebar,body.print-indlaeg .vis-mere{display:none!important}
+	body.print-indlaeg .fanebar,body.print-indlaeg .vis-mere,.lille{display:none!important}
 	body.print-indlaeg .tekst.klip{display:block;-webkit-line-clamp:unset;line-clamp:unset;overflow:visible}
 	.liste li{break-inside:avoid}
 	#opsamling-sektion{border:0;padding:0;margin:0}
@@ -253,6 +256,54 @@ a.knap{text-decoration:none;display:inline-block}
 
 	const tid = (iso) => new Date(iso).toLocaleString('da-DK', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
+	const MINE = 'dcol_mine'; // { indlægs-id: nøgle } for de indlæg, denne browser har skrevet
+	const mineIndlaeg = () => { try { return JSON.parse(localStorage.getItem(MINE) || '{}'); } catch (e) { return {}; } };
+	const gemMine = (m) => { try { localStorage.setItem(MINE, JSON.stringify(m)); } catch (e) {} };
+	const lilleKnap = (tekst) => { const k = document.createElement('button'); k.type = 'button'; k.className = 'lille'; k.textContent = tekst; return k; };
+	let pauseListe = false; // Listen gentegnes ikke, mens man retter eller bekræfter sletning.
+
+	function retIndlaeg(p, li, t) {
+		pauseListe = true;
+		const felt = document.createElement('textarea');
+		felt.maxLength = 2000;
+		felt.value = p.tekst;
+		felt.setAttribute('aria-label', 'Ret dit indlæg');
+		const gem = lilleKnap('Gem');
+		const annuller = lilleKnap('Annullér');
+		const status = document.createElement('div');
+		status.className = 'status';
+		status.setAttribute('role', 'status');
+		const boks = document.createElement('div');
+		boks.className = 'ret-boks';
+		boks.append(felt, gem, ' · ', annuller, status);
+		li.querySelector('.vis-mere')?.remove();
+		t.replaceWith(boks);
+		felt.focus();
+		annuller.addEventListener('click', () => { pauseListe = false; visListe(data.indlaeg); });
+		gem.addEventListener('click', async () => {
+			gem.disabled = true;
+			try {
+				await post('ret', { id: p.id, token: mineIndlaeg()[p.id] || '', tekst: felt.value });
+				pauseListe = false;
+				hent();
+			} catch (e) { status.textContent = e.message; gem.disabled = false; }
+		});
+	}
+
+	function sletIndlaeg(p, knap) {
+		if (knap.dataset.bekraeft !== '1') {
+			pauseListe = true;
+			knap.dataset.bekraeft = '1';
+			knap.textContent = 'Klik igen for at slette';
+			setTimeout(() => { if (knap.isConnected && !knap.disabled) { knap.dataset.bekraeft = ''; knap.textContent = 'Slet'; pauseListe = false; } }, 4000);
+			return;
+		}
+		knap.disabled = true;
+		post('slet', { id: p.id, token: mineIndlaeg()[p.id] || '' })
+			.then(() => { const m = mineIndlaeg(); delete m[p.id]; gemMine(m); pauseListe = false; hent(); })
+			.catch((e) => { knap.textContent = e.message; pauseListe = false; });
+	}
+
 	function visListe(indlaeg) {
 		const ul = $('liste');
 		ul.textContent = '';
@@ -270,7 +321,15 @@ a.knap{text-decoration:none;display:inline-block}
 			meta.className = 'meta';
 			const b = document.createElement('b');
 			b.textContent = p.navn;
-			meta.append(b, ' · ' + tid(p.tid));
+			meta.append(b, ' · ' + tid(p.tid) + (p.rettet ? ' · rettet' : ''));
+			// Ret/slet: forfatterens egen browser (nøgle fra oprettelsen) eller admin.
+			if (ADMIN || mineIndlaeg()[p.id]) {
+				const ret = lilleKnap('Ret');
+				const slet = lilleKnap('Slet');
+				ret.addEventListener('click', () => retIndlaeg(p, li, t));
+				slet.addEventListener('click', () => sletIndlaeg(p, slet));
+				meta.append(' · ', ret, ' · ', slet);
+			}
 			const t = document.createElement('div');
 			t.className = 'tekst';
 			t.textContent = p.tekst;
@@ -386,7 +445,7 @@ a.knap{text-decoration:none;display:inline-block}
 			if (!r.ok) return;
 			data = await r.json();
 			$('antal').textContent = data.indlaeg.length;
-			visListe(data.indlaeg);
+			if (!pauseListe) visListe(data.indlaeg);
 			visSky(data.indlaeg);
 			visAnalyse(data);
 			const pf = $('prompt');
@@ -410,6 +469,7 @@ a.knap{text-decoration:none;display:inline-block}
 			});
 			const svar = await r.json().catch(() => ({}));
 			if (!r.ok) throw new Error(svar.message || 'Noget gik galt.');
+			if (svar.id && svar.token) { const m = mineIndlaeg(); m[svar.id] = svar.token; gemMine(m); }
 			$('tekst').value = '';
 			$('status').textContent = 'Tak – dit indlæg er sendt.';
 			hent();
