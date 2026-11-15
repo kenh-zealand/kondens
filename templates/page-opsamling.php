@@ -107,6 +107,20 @@ a.knap{text-decoration:none;display:inline-block}
 	.kun-print h1{font-size:1.5rem;color:#000;margin:0 0 .3rem}
 }
 .fejl{color:#b3261e;font-size:.9rem;margin-top:.5rem}
+/* Knapper: brydes til ny linje i stedet for at blive klemt; ingen blå systemfarve på iPhone. */
+.fanebar{flex-wrap:wrap}
+.fane,.toggle,.knap{white-space:nowrap}
+.fane,.toggle{color:var(--tekst);-webkit-appearance:none;appearance:none}
+#opdateret:empty{display:none}
+@media (max-width:600px){
+	.wrap{padding:1.25rem .9rem 3rem}
+	.kort{padding:1rem 1rem}
+	.fanebar{gap:.4rem}
+	.fane,.toggle{padding:.35rem .8rem;font-size:.85rem}
+	.analyse-fod{flex-direction:column;align-items:flex-start}
+	.hoejre{flex-wrap:wrap;gap:.5rem}
+	.knap{padding:.55rem 1.1rem}
+}
 @media (prefers-reduced-motion:reduce){.ny-markering{animation:none}.sky span{transition:none}}
 </style>
 </head>

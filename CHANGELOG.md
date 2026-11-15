@@ -2,6 +2,11 @@
 
 Alle væsentlige ændringer i Discussion Collector.
 
+## [1.8] – 2026-11-15
+
+### Ændret
+- Bedre visning på mobil: knapperne bryder til ny linje i stedet for at blive klemt eller stikke ud over kanten, får ikke længere blå systemfarve på iPhone, og "Eksportér PDF" under opsamlingen står lige.
+
 ## [1.7] – 2026-11-15
 
 ### Tilføjet
