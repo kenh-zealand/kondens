@@ -1,10 +1,10 @@
-# Discussion Collector
+# Kondens · Tankekondensatoren
 
-Dette er en opsamler af indlæg med tematisering via AI (tilføj egen API).
+En opsamler af indlæg med tematisering via AI (tilføj egen API). Mange spredte tanker bliver kondenseret til noget konkret.
 
 En lille, selvstændig WordPress-side inspireret af Howspace' opsamlingsblok: deltagere skriver korte indlæg, og underviseren får Claude (Anthropic) til at samle dem i temaer ud fra en prompt. Siden har også en ordsky og kan eksportere opsamlingen som PDF.
 
-**Version:** 1.8 – se [CHANGELOG.md](CHANGELOG.md).
+**Version:** 2.0 – se [CHANGELOG.md](CHANGELOG.md).
 
 ## Funktioner
 
@@ -21,8 +21,8 @@ En lille, selvstændig WordPress-side inspireret af Howspace' opsamlingsblok: de
 
 1. Klik på den grønne knap **Code → Download ZIP** her på GitHub.
 2. Gå i WordPress til **Plugins → Tilføj nyt plugin → Upload plugin**, vælg ZIP-filen, og tryk **Installer nu** og derefter **Aktivér**.
-3. Ved aktivering oprettes siden **/opsamling/** automatisk (hvis den ikke findes i forvejen). Sidens tekst vises som introduktion og kan redigeres som en almindelig side.
-4. Gå til **Indstillinger → Opsamling** (eller klik "Indstillinger" ved pluginet) og udfyld:
+3. Ved aktivering oprettes siden **/kondens/** automatisk (hvis den ikke findes i forvejen). Sidens tekst vises som introduktion og kan redigeres som en almindelig side.
+4. Gå til **Indstillinger → Kondens** (eller klik "Indstillinger" ved pluginet) og udfyld:
    - **Anthropic API-nøgle** – oprettes på [console.anthropic.com](https://console.anthropic.com) (kræver betaling dér).
    - **Model** – fx `claude-haiku-5-5` (hurtig og billig) eller `claude-sonnet-5-5` (standard).
    - **Deltagerkode** – den kode, deltagerne skal skrive (små bogstaver).
@@ -40,9 +40,9 @@ Administratorer logger ind med deres almindelige WordPress-konto – der er inge
 
 ## Filer
 
-- `discussion-collector.php` – pluginets hovedfil.
-- `inc/opsamling.php` – logik: indholdstyper, adgang, REST-endepunkter, kald til Claude og indstillinger.
-- `templates/page-opsamling.php` – selve siden /opsamling/ (HTML, CSS og JavaScript).
+- `kondens.php` – pluginets hovedfil.
+- `inc/kondens.php` – logik: indholdstyper, adgang, REST-endepunkter, kald til Claude og indstillinger.
+- `templates/page-kondens.php` – selve siden /kondens/ (HTML, CSS og JavaScript).
 
 ## Data
 

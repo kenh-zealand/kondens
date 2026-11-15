@@ -1,7 +1,7 @@
 <?php
 /**
- * Selvstændig opsamlingsside (/opsamling/) – uden sidens almindelige tema.
- * Logikken ligger i inc/opsamling.php. Vises af pluginet for siden med adressen /opsamling/.
+ * Kondens · Tankekondensatoren (/kondens/) – uden sidens almindelige tema.
+ * Logikken ligger i inc/kondens.php. Vises af pluginet for siden med adressen /kondens/.
  */
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
@@ -29,6 +29,7 @@ body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;c
 h1{font-size:1.9rem;margin:0 0 .5rem}
 h2{font-size:1.15rem;margin:0 0 .75rem}
 .intro{color:var(--graa);margin-bottom:1.5rem}
+.undertitel{margin:-.4rem 0 1rem;color:var(--lilla);font-weight:600;letter-spacing:.02em}
 .kort{background:#fff;border:1px solid var(--kant);border-radius:14px;padding:1.25rem 1.4rem;margin-bottom:1.25rem}
 label{display:block;font-weight:600;font-size:.9rem;margin-bottom:.3rem}
 textarea,input[type=text],input[type=password]{width:100%;font:inherit;padding:.65rem .8rem;border:1px solid #cfccd9;border-radius:10px;background:#fff}
@@ -129,6 +130,7 @@ a.knap{text-decoration:none;display:inline-block}
 <main class="login">
 	<div class="kort">
 		<h1><?php echo esc_html( get_the_title( $dcol_side ) ); ?></h1>
+		<p class="undertitel">Tankekondensatoren</p>
 		<p class="intro">Skriv koden, du har fået af underviseren.</p>
 		<form method="post">
 			<label for="kode">Kode</label>
@@ -158,6 +160,7 @@ a.knap{text-decoration:none;display:inline-block}
 <?php else : ?>
 <main class="wrap">
 	<h1><?php echo esc_html( get_the_title( $dcol_side ) ); ?></h1>
+	<p class="undertitel">Tankekondensatoren</p>
 	<div class="intro"><?php echo wpautop( wp_kses_post( $dcol_side->post_content ) ); ?></div>
 
 	<section class="kort" aria-labelledby="skriv-h">
@@ -253,12 +256,12 @@ a.knap{text-decoration:none;display:inline-block}
 		<ul class="liste" id="liste"></ul>
 		<div class="sky" id="sky" hidden aria-label="Ordsky over alle indlæg"></div>
 	</section>
-	<p class="version">Discussion Collector v<?php echo esc_html( defined( 'DCOL_VERSION' ) ? DCOL_VERSION : '' ); ?><?php if ( ! $dcol_admin ) : ?> · <a href="<?php echo esc_url( wp_login_url( get_permalink( $dcol_side ) ) ); ?>">Underviser? Log ind</a><?php endif; ?></p>
+	<p class="version">Kondens v<?php echo esc_html( defined( 'DCOL_VERSION' ) ? DCOL_VERSION : '' ); ?><?php if ( ! $dcol_admin ) : ?> · <a href="<?php echo esc_url( wp_login_url( get_permalink( $dcol_side ) ) ); ?>">Underviser? Log ind</a><?php endif; ?></p>
 </main>
 
 <script>
 (() => {
-	const API = <?php echo wp_json_encode( esc_url_raw( rest_url( 'discussion-collector/v1/' ) ) ); ?>;
+	const API = <?php echo wp_json_encode( esc_url_raw( rest_url( 'kondens/v1/' ) ) ); ?>;
 	const $ = (id) => document.getElementById(id);
 	const ADMIN = <?php echo $dcol_admin ? 'true' : 'false'; ?>;
 	// WordPress kræver en nonce, før REST-kald kører som den indloggede admin.

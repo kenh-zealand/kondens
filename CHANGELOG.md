@@ -1,6 +1,19 @@
 # Ændringslog
 
-Alle væsentlige ændringer i Discussion Collector.
+Alle væsentlige ændringer i Kondens (tidligere Discussion Collector).
+
+## [2.0] – 2026-11-15
+
+### Ændret
+- Projektet hedder nu **Kondens · Tankekondensatoren** (tidligere Discussion Collector), og repoet hedder `kenh-zealand/kondens`.
+- Pluginets hovedfil hedder nu `kondens.php`; filerne hedder `inc/kondens.php` og `templates/page-kondens.php`.
+- Siden ligger på `/kondens/` i stedet for `/opsamling/`, og den oprettes med titlen "Kondens" og undertitlen "Tankekondensatoren".
+- Indstillingerne ligger under **Indstillinger → Kondens**, og REST-adressen er `kondens/v1`.
+- De interne navne med præfikset `dcol_` (indstillinger og indholdstyper) er uændrede.
+
+### Opgradering fra 1.x
+- Deaktivér og slet den gamle udgave, upload den nye, og aktivér den. Indlæg og indstillinger bevares.
+- Siden skal nu have adressen `kondens`. Ret adressen på den eksisterende side under Sider, eller lad pluginet oprette en ny.
 
 ## [1.8] – 2026-11-15
 

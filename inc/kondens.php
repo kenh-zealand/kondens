@@ -1,8 +1,8 @@
 <?php
 /**
- * Opsamling – selvstændig prototype af en Howspace-lignende opsamlingsblok.
+ * Kondens · Tankekondensatoren – inspireret af Howspace' opsamlingsblok.
  *
- * - Siden /opsamling/ er beskyttet med en fælles kode (DCOL_KODE).
+ * - Siden /kondens/ er beskyttet med en fælles kode (DCOL_KODE).
  * - Deltagernes indlæg gemmes som private indlæg af typen dcol_indlaeg.
  * - Et autogenereret, privat dokument ("Samlet opsamling") indeholder alle
  *   indlæg i ét, så Claude kan læse dem med ét kald.
@@ -14,12 +14,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-// Deltagerkoden sættes under Indstillinger → Opsamling,
+// Deltagerkoden sættes under Indstillinger → Kondens,
 // eller i wp-config.php med: define( 'DCOL_KODE', 'din-kode' );
 const DCOL_COOKIE  = 'dcol_adgang';
-const DCOL_VERSION = '1.8';
+const DCOL_VERSION = '2.0';
 
-/* Deltagerkoden: DCOL_KODE (fx i wp-config.php) går forud; ellers Indstillinger → Opsamling. */
+/* Deltagerkoden: DCOL_KODE (fx i wp-config.php) går forud; ellers Indstillinger → Kondens. */
 function dcol_kode() {
 	if ( defined( 'DCOL_KODE' ) && '' !== (string) DCOL_KODE ) {
 		return strtolower( trim( (string) DCOL_KODE ) );
@@ -43,11 +43,11 @@ function dcol_register_types() {
 		'supports'            => array( 'title', 'editor', 'excerpt' ),
 	);
 	register_post_type( 'dcol_indlaeg', array_merge( $common, array(
-		'labels'    => array( 'name' => 'Opsamling: indlæg', 'singular_name' => 'Indlæg' ),
+		'labels'    => array( 'name' => 'Kondens: indlæg', 'singular_name' => 'Indlæg' ),
 		'menu_icon' => 'dashicons-format-chat',
 	) ) );
 	register_post_type( 'dcol_opsamling', array_merge( $common, array(
-		'labels'    => array( 'name' => 'Opsamling: analyse', 'singular_name' => 'Analyse' ),
+		'labels'    => array( 'name' => 'Kondens: analyse', 'singular_name' => 'Analyse' ),
 		'menu_icon' => 'dashicons-lightbulb',
 	) ) );
 }
@@ -70,7 +70,7 @@ function dcol_er_logget_ind() {
 }
 
 function dcol_haandter_login() {
-	if ( ! is_page( 'opsamling' ) || 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) || ! isset( $_POST['dcol_kode'] ) ) {
+	if ( ! is_page( 'kondens' ) || 'POST' !== ( $_SERVER['REQUEST_METHOD'] ?? '' ) || ! isset( $_POST['dcol_kode'] ) ) {
 		return;
 	}
 	$kode = strtolower( trim( wp_unslash( (string) $_POST['dcol_kode'] ) ) );
@@ -177,37 +177,37 @@ add_action( 'before_delete_post', 'dcol_marker_aendring' );
 /* ── REST-endepunkter (kræver koden) ───────────────────────────────────── */
 
 add_action( 'rest_api_init', function () {
-	register_rest_route( 'discussion-collector/v1', '/feed', array(
+	register_rest_route( 'kondens/v1', '/feed', array(
 		'methods'             => 'GET',
 		'callback'            => 'dcol_feed',
 		'permission_callback' => 'dcol_er_logget_ind',
 	) );
-	register_rest_route( 'discussion-collector/v1', '/indlaeg', array(
+	register_rest_route( 'kondens/v1', '/indlaeg', array(
 		'methods'             => 'POST',
 		'callback'            => 'dcol_nyt',
 		'permission_callback' => 'dcol_er_logget_ind',
 	) );
-	register_rest_route( 'discussion-collector/v1', '/ret', array(
+	register_rest_route( 'kondens/v1', '/ret', array(
 		'methods'             => 'POST',
 		'callback'            => 'dcol_ret',
 		'permission_callback' => 'dcol_er_logget_ind',
 	) );
-	register_rest_route( 'discussion-collector/v1', '/slet', array(
+	register_rest_route( 'kondens/v1', '/slet', array(
 		'methods'             => 'POST',
 		'callback'            => 'dcol_slet',
 		'permission_callback' => 'dcol_er_logget_ind',
 	) );
-	register_rest_route( 'discussion-collector/v1', '/prompt', array(
+	register_rest_route( 'kondens/v1', '/prompt', array(
 		'methods'             => 'POST',
 		'callback'            => 'dcol_gem_prompt',
 		'permission_callback' => 'dcol_er_admin',
 	) );
-	register_rest_route( 'discussion-collector/v1', '/anmod', array(
+	register_rest_route( 'kondens/v1', '/anmod', array(
 		'methods'             => 'POST',
 		'callback'            => 'dcol_anmod',
 		'permission_callback' => 'dcol_er_admin',
 	) );
-	register_rest_route( 'discussion-collector/v1', '/nulstil', array(
+	register_rest_route( 'kondens/v1', '/nulstil', array(
 		'methods'             => 'POST',
 		'callback'            => 'dcol_nulstil',
 		'permission_callback' => 'dcol_er_admin',
@@ -318,20 +318,20 @@ function dcol_anmod() {
 	return array( 'ok' => true );
 }
 
-/* Indstillinger → Opsamling: API-nøgle og model. */
+/* Indstillinger → Kondens: API-nøgle, model og deltagerkode. */
 add_action( 'admin_menu', function () {
-	add_options_page( 'Opsamling', 'Opsamling', 'manage_options', 'discussion-collector', 'dcol_indstillinger_side' );
+	add_options_page( 'Kondens', 'Kondens', 'manage_options', 'kondens', 'dcol_indstillinger_side' );
 } );
 add_action( 'admin_init', function () {
-	register_setting( 'discussion_collector', 'dcol_api_key', array(
+	register_setting( 'kondens', 'dcol_api_key', array(
 		'type'              => 'string',
 		'sanitize_callback' => function ( $v ) {
 			$v = trim( (string) $v );
 			return '' === $v ? (string) get_option( 'dcol_api_key', '' ) : $v; // Tomt felt = behold nuværende nøgle.
 		},
 	) );
-	register_setting( 'discussion_collector', 'dcol_model', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field' ) );
-	register_setting( 'discussion_collector', 'dcol_kode', array(
+	register_setting( 'kondens', 'dcol_model', array( 'type' => 'string', 'sanitize_callback' => 'sanitize_text_field' ) );
+	register_setting( 'kondens', 'dcol_kode', array(
 		'type'              => 'string',
 		'sanitize_callback' => function ( $v ) {
 			return strtolower( trim( sanitize_text_field( (string) $v ) ) );
@@ -342,10 +342,10 @@ function dcol_indstillinger_side() {
 	$har = '' !== dcol_api_noegle();
 	?>
 	<div class="wrap">
-		<h1>Opsamling – Claude</h1>
-		<p>Bruges af "Opdater"-knappen på <a href="<?php echo esc_url( home_url( '/opsamling/' ) ); ?>" target="_blank">/opsamling/</a>. Nøglen oprettes på console.anthropic.com og vises aldrig på siden.</p>
+		<h1>Kondens – Claude</h1>
+		<p>Bruges af "Opdater"-knappen på <a href="<?php echo esc_url( home_url( '/kondens/' ) ); ?>" target="_blank">/kondens/</a>. Nøglen oprettes på console.anthropic.com og vises aldrig på siden.</p>
 		<form method="post" action="options.php">
-			<?php settings_fields( 'discussion_collector' ); ?>
+			<?php settings_fields( 'kondens' ); ?>
 			<table class="form-table">
 				<tr><th scope="row"><label for="dcol_api_key">Anthropic API-nøgle</label></th>
 					<td><input type="password" id="dcol_api_key" name="dcol_api_key" class="regular-text" autocomplete="off" placeholder="<?php echo $har ? 'Gemt – lad feltet stå tomt for at beholde den' : 'sk-ant-…'; ?>">
